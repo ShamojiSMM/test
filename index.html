@@ -95,7 +95,7 @@
 <body>
   <h1>レール演奏補助ツール - SMM2</h1>
   <font size="3">レール演奏に関するいろんな機能があります。</font><br>
-  <font size="2">(最終更新日: 2024/02/14)</font>
+  <font size="2">(最終更新日: 2024/02/17)</font>
 
   <hr>
   <font size="5"><b>目次</b></font>
@@ -819,19 +819,42 @@
 
     var audioContext = new (window.AudioContext || window.webkitAudioContext)();
     
+    var data;
+
+    xml = new XMLHttpRequest();
+    xml.responseType = "arraybuffer";
+    xml.open("GET", "sounds/piano.mp3", true);
+
+    xml.onload = function() {
+      audioContext.decodeAudioData(
+        xml.response, function(preData) {
+          data = preData;
+        },
+      );
+    }
+    xml.send(); 
+
     function funPlaySound(column) {
-      var oscillator = audioContext.createOscillator();
-      var gainNode = audioContext.createGain();
+      // var oscillator = audioContext.createOscillator();
+      // var gainNode = audioContext.createGain();
 
-      oscillator.type = instruments[selectInstrument.selectedIndex];
-      oscillator.frequency.setValueAtTime(440 * (2 ** ((18 - selectScale.selectedIndex + parseFloat(tableWiring.rows[6].cells[column].textContent)) / 12)), audioContext.currentTime);
-      oscillator.connect(gainNode);      
+      // oscillator.type = instruments[selectInstrument.selectedIndex];
+      // oscillator.frequency.setValueAtTime(440 * (2 ** ((18 - selectScale.selectedIndex + parseFloat(tableWiring.rows[6].cells[column].textContent)) / 12)), audioContext.currentTime);
+      // oscillator.connect(gainNode);      
 
-      gainNode.gain.value = 0.2;     
-      gainNode.connect(audioContext.destination);
+      // gainNode.gain.value = 0.2;     
+      // gainNode.connect(audioContext.destination);
 
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + 0.1);
+      // oscillator.start();
+      // oscillator.stop(audioContext.currentTime + 0.1);
+
+      var bufferSource = audioContext.createBufferSource();
+
+      bufferSource.buffer = data;
+      bufferSource.playbackRate.value = (2 ** (18 - selectScale.selectedIndex + parseInt(tableWiring.rows[6].cells[column].textContent)) / 12);
+      
+      bufferSource.connect(audioContext.destination);
+      bufferSource.start(0);
     }
 
     function funPlay() {
