@@ -839,21 +839,24 @@
     var soundData = [];
 
     for (var i = 0; i <= 1; i ++) {
-      var xml = new XMLHttpRequest();
-      xml.responseType = "arraybuffer";
-      xml.open("GET", `sounds/sound${i}.mp3`, true);
-
-      xml.onload = function() {
-        audioContext.decodeAudioData(
-          xml.response, 
-          function(data) {
-            soundData[i] = data;
-          }
-        );
-      };
-
-      xml.send();
+      (function(i) {
+        var xml = new XMLHttpRequest();
+        xml.responseType = "arraybuffer";
+        xml.open("GET", `sounds/sound${i}.mp3`, true);
+      
+        xml.onload = function() {
+          audioContext.decodeAudioData(
+            xml.response, 
+            function(data) {
+              soundData[i] = data;
+            }
+          );
+        };
+      
+        xml.send();
+      })(i);
     }
+
 
     function funPlaySound(column) {
       if (selectInstrument.selectedIndex <= 3) {
