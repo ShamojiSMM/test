@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>v1.2.0</title>
+  <title>v1.2.1</title>
 
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon-180x180.png">
@@ -875,11 +875,16 @@
       
       } else {
         var bufferSource = audioContext.createBufferSource();
+        var gainNode = audioContext.createGain();
 
         bufferSource.buffer = soundData[selectInstrument.selectedIndex - 4];
         bufferSource.playbackRate.value = 2 ** ((18 - selectScale.selectedIndex + parseInt(tableWiring.rows[6].cells[column].textContent)) / 12);
 
-        bufferSource.connect(audioContext.destination);
+        bufferSource.connect(gainNode);
+
+        gainNode.gain.value = 0.2;
+        gainNode.connect(audioContext.destination);
+
         bufferSource.start(0);
       }
     }
