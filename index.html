@@ -490,6 +490,8 @@
     <option>三角波</option>
     <option>矩形波</option>
     <option>ノコギリ波</option>
+    <option>ピアノ</option>
+    <option>トランペット</option>
   </select>
   
   <div style="overflow-x: scroll;">
@@ -819,42 +821,62 @@
 
     var audioContext = new (window.AudioContext || window.webkitAudioContext)();
     
-    var data;
+    // var soundData;
+    // var xml = new XMLHttpRequest();
+    // xml.responseType = "arraybuffer";
+    // xml.open("GET", "sounds/piano.mp3", true);
 
-    xml = new XMLHttpRequest();
-    xml.responseType = "arraybuffer";
-    xml.open("GET", "sounds/piano.mp3", true);
+    // xml.onload = function() {
+    //   audioContext.decodeAudioData(
+    //     xml.response, function(data) {
+    //       soundData = data;
+    //     },
+    //   );
+    // }
 
-    xml.onload = function() {
-      audioContext.decodeAudioData(
-        xml.response, function(preData) {
-          data = preData;
-        },
-      );
+    // xml.send();
+    
+    var soundData = [];
+
+    for (var i = 0; i <= 1; i ++) {
+      var xml = new XMLHttpRequest();
+      xml.responseType = "arraybuffer";
+      xml.open("GET", `sounds/sound${i}.mp3`, true);
+
+      xml.onload = function() {
+        audioContext.decodeAudioData(
+          xml.response, 
+          function(data) {
+            soundData[i] = data;
+          }
+        );
+      }
     }
-    xml.send(); 
 
     function funPlaySound(column) {
-      // var oscillator = audioContext.createOscillator();
-      // var gainNode = audioContext.createGain();
+      if (selectInstrument.selectedIndex <= 3) {
+        var oscillator = audioContext.createOscillator();
+        var gainNode = audioContext.createGain();
 
-      // oscillator.type = instruments[selectInstrument.selectedIndex];
-      // oscillator.frequency.setValueAtTime(440 * (2 ** ((18 - selectScale.selectedIndex + parseFloat(tableWiring.rows[6].cells[column].textContent)) / 12)), audioContext.currentTime);
-      // oscillator.connect(gainNode);      
+        oscillator.type = instruments[selectInstrument.selectedIndex];
+        oscillator.frequency.setValueAtTime(440 * (2 ** ((18 - selectScale.selectedIndex + parseFloat(tableWiring.rows[6].cells[column].textContent)) / 12)), audioContext.currentTime);
+        oscillator.connect(gainNode);      
 
-      // gainNode.gain.value = 0.2;     
-      // gainNode.connect(audioContext.destination);
+        gainNode.gain.value = 0.2;     
+        gainNode.connect(audioContext.destination);
 
-      // oscillator.start();
-      // oscillator.stop(audioContext.currentTime + 0.1);
-
-      var bufferSource = audioContext.createBufferSource();
-
-      bufferSource.buffer = data;
-       bufferSource.playbackRate.value = 2 ** ((18 - selectScale.selectedIndex + parseInt(tableWiring.rows[6].cells[column].textContent)) / 12);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
       
-      bufferSource.connect(audioContext.destination);
-      bufferSource.start(0);
+      } else {
+        var bufferSource = audioContext.createBufferSource();
+
+        bufferSource.buffer = soundData[selectInstrument.selectedIndex - 4];
+        bufferSource.playbackRate.value = 2 ** ((18 - selectScale.selectedIndex + parseInt(tableWiring.rows[6].cells[column].textContent)) / 12);
+
+        bufferSource.connect(audioContext.destination);
+        bufferSource.start(0);
+      }
     }
 
     function funPlay() {
