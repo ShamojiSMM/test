@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>v1.1.2</title>
+  <title>v1.1.3</title>
 
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon-180x180.png">
@@ -821,41 +821,33 @@
 
     var audioContext = new (window.AudioContext || window.webkitAudioContext)();
     
-    // var soundData;
-    // var xml = new XMLHttpRequest();
-    // xml.responseType = "arraybuffer";
-    // xml.open("GET", "sounds/piano.mp3", true);
-
-    // xml.onload = function() {
-    //   audioContext.decodeAudioData(
-    //     xml.response, function(data) {
-    //       soundData = data;
-    //     },
-    //   );
-    // }
-
-    // xml.send();
-    
     var soundData = [];
 
-    for (var i = 0; i <= 1; i ++) {
-      var xml = new XMLHttpRequest();
-      xml.responseType = "arraybuffer";
-      xml.open("GET", `sounds/sound${i}.mp3`, true);
+    var xml = new XMLHttpRequest();
+    xml.responseType = "arraybuffer";
+    xml.open("GET", "sounds/sound0.mp3", true);
 
-      xml.onload = function(index) {
-        return function() {
-          audioContext.decodeAudioData(
-            xml.response, 
-            function(data) {
-              soundData[index] = data;
-            }
-          );
-        }
-      }(i);
-
-      xml.send();
+    xml.onload = function() {
+      audioContext.decodeAudioData(
+        xml.response, function(data) {
+          soundData[0] = data;
+        },
+      );
     }
+    xml.send();
+
+    var xml = new XMLHttpRequest();
+    xml.responseType = "arraybuffer";
+    xml.open("GET", "sounds/sound1.mp3", true);
+
+    xml.onload = function() {
+      audioContext.decodeAudioData(
+        xml.response, function(data) {
+          soundData[1] = data;
+        },
+      );
+    }
+    xml.send();
 
     function funPlaySound(column) {
       if (selectInstrument.selectedIndex <= 3) {
