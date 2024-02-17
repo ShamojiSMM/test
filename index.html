@@ -851,7 +851,7 @@
       var bufferSource = audioContext.createBufferSource();
 
       bufferSource.buffer = data;
-      bufferSource.playbackRate.value = (2 ** (18 - selectScale.selectedIndex + parseInt(tableWiring.rows[6].cells[column].textContent)) / 12);
+       bufferSource.playbackRate.value = 2 ** ((18 - selectScale.selectedIndex + parseInt(tableWiring.rows[6].cells[column].textContent)) / 12);
       
       bufferSource.connect(audioContext.destination);
       bufferSource.start(0);
