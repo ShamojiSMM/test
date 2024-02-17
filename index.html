@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>v1.2.2</title>
+  <title>Test v1.2.2</title>
 
   <link rel="icon" type="image/x-icon" href="images/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon-180x180.png">
@@ -94,7 +94,7 @@
 
 <body>
   <h1>テスト</h1>
-  <font size="3">いろいろテストします。見てもいいことないよ！</font><br>
+  <font size="3">レール演奏で使えそうな機能の寄せ集め。</font><br>
   <font size="2">(最終更新日: 2024/02/17)</font>
 
   <hr>
@@ -820,22 +820,7 @@
     var instruments = ["sine", "triangle", "square", "sawtooth"];
 
     var audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    
-    // var soundData;
-    // var xml = new XMLHttpRequest();
-    // xml.responseType = "arraybuffer";
-    // xml.open("GET", "sounds/piano.mp3", true);
-
-    // xml.onload = function() {
-    //   audioContext.decodeAudioData(
-    //     xml.response, function(data) {
-    //       soundData = data;
-    //     },
-    //   );
-    // }
-
-    // xml.send();
-    
+        
     var soundData = [];
 
     for (var i = 0; i <= 1; i ++) {
@@ -1356,7 +1341,7 @@
   htmlでローカルファイル参照はできるのにJavaScriptだとできない。GitHubにアップロードしたらできるけど, いちいちアップロードしないといけないのは面倒。<br>
   サーバの勉強もしないとねぇ。
   <br><br>
-  まぁなんやかんや役に立ててると嬉しいです。
+  データ, 機能, その他もろもろの誤りや改善案があれば教えてくれると嬉しいです。
   </font>
   <br><br>
 
