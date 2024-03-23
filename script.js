@@ -1,6 +1,6 @@
 var languageIndex = 0;
 
-if (window.navigator.language != "ja") {
+if (window.navigator.language == "ja") {
   selectLanguage.selectedIndex = 0;
 
 } else {
