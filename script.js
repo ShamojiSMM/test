@@ -1,3 +1,27 @@
+var languageIndex = 0;
+
+if (window.navigator.language != "ja") {
+  selectLanguage.selectedIndex = 0;
+
+} else {
+  selectLanguage.selectedIndex = 1;
+  funLanguage(1);
+
+  languageIndex = 1;
+}
+
+function funLanguage(selectedIndex) {
+  document.querySelectorAll(".ja").forEach(elm => elm.style.display = ["inline", "none"][selectedIndex]);
+  document.querySelectorAll(".en").forEach(elm => elm.style.display = ["none", "inline"][selectedIndex]);
+
+  var shift = [-1, 1][selectedIndex];
+  [selectLoopType, selectCycle, selectInstrument, selectTableInput, selectLoading, selectLoadingSpeedInput, selectLanding, selectTableInput.selectedIndex, selectSort].forEach(select => {
+    select.selectedIndex += shift;
+  });
+
+  languageIndex = selectedIndex;
+}
+
 function isNum(...values) {
   if (!values.length) return false;
   for (var value of values) {
@@ -42,16 +66,16 @@ function funBarValue() {
 }
 
 function funLoopType(loopType) {
-  divLoopText.style.display = loopType == 1 ? "none" : "inline-block";
+  pLoopsText.style.display = [2, 3].includes(loopType) ? "none" : "inline-block";
 }
 
 function funLoop() {
   var loopValue = parseInt(inputLoop.value);
   var resultLoops = [];
 
-  switch (selectLoopType.selectedIndex) {
+  switch (selectLoopType.selectedIndex - languageIndex) {
     case 0:
-      imageLoop.style.display = "none";
+      divSpecial.style.display = "none";
 
       for (var s = 0; s <= loopValue / 42; s ++) {
         for (var d = 0; d <= loopValue / 60; d ++) {
@@ -65,35 +89,39 @@ function funLoop() {
         }
       }
 
-      spanLoop.textContent = resultLoops.length ? resultLoops.reverse() : "Not Found";
+      spanLoops.textContent = resultLoops.length ? resultLoops.reverse() : "Not Found";
       break;
 
-    case 1:
+    case 2:
       var subStraights = [1, 3, 3, 4, 3, 4, 3, 4, 4, 3, 3, 4, 4, 4, 3, 2, 4, 4, 1, 4, 4, 3, 4, 3, 4, 4, 4, 2, 4, 4, 1, 4, 4, 4, 4, 2, 2, 2, 4, 4, 4, 4];
       var addStraights = parseInt(loopValue / 42) - subStraights[loopValue % 42];
 
       if (addStraights >= 0) {
-        spanLoop.innerHTML = `<p class="p3 bold">直線追加[本]:</p> ${addStraights}`;
-        imageLoop.style.display = "block";
+        spanLoops.textContent = "";
+
+        spanSpecial.textContent = addStraights;
+        divSpecial.style.display = "block";
         imageLoop.style.width = "12rem";
         imageLoop.src = `images/tracks/base${loopValue % 42}.jpg`;
 
       } else {
         if ([90, 96].includes(loopValue)) {
-          spanLoop.textContent = "";
-          imageLoop.style.display = "block";
+          spanLoops.textContent = "";
+          spanSpecial.textContent = "";
+
+          divSpecial.style.display = "block";
           imageLoop.style.width = "12rem";
           imageLoop.src = `images/tracks/other${loopValue}.jpg`;
 
         } else {
-          spanLoop.textContent = "Not Found";
-          imageLoop.style.display = "none";
+          spanLoops.textContent = "Not Found";
+          divSpecial.style.display = "none";
         }
       }
       break;
 
-    case 2:
-      imageLoop.style.display = "none";
+    case 4:
+      divSpecial.style.display = "none";
 
       for (var s = 0; s <= loopValue / 21; s ++) {
         for (var d = 0; d <= loopValue / 30; d ++) {
@@ -107,11 +135,11 @@ function funLoop() {
         }
       }
 
-      spanLoop.textContent = resultLoops.length ? resultLoops.reverse() : "Not Found";
+      spanLoops.textContent = resultLoops.length ? resultLoops.reverse() : "Not Found";
       break;
 
-    case 3:
-      imageLoop.style.display = "none";
+    case 6:
+      divSpecial.style.display = "none";
 
       for (var s = 0; s <= loopValue / 84; s ++) {
         for (var d = 0; d <= loopValue / 120; d ++) {
@@ -125,7 +153,7 @@ function funLoop() {
         }
       }
 
-      spanLoop.textContent = resultLoops.length ? resultLoops.reverse() : "Not Found";
+      spanLoops.textContent = resultLoops.length ? resultLoops.reverse() : "Not Found";
   }
 }
 
@@ -135,7 +163,7 @@ function funCycle() {
   var curved = parseInt(inputCycleCurved.value || 0);
   var correction = parseInt(inputCycleCorrection.value || 0);
 
-  var coefficients = [[42, 60, 72, 2], [21, 30, 36, 1], [84, 120, 142, 2], [42, 60, 71, 1]][selectCycle.selectedIndex];
+  var coefficients = [[42, 60, 72, 2], [21, 30, 36, 1], [84, 120, 142, 2], [42, 60, 71, 1]][(selectCycle.selectedIndex - languageIndex) / 2];
 
   spanCycle.textContent = coefficients[0] * straight + coefficients[1] * diagonal + coefficients[2] * curved + coefficients[3] * correction;
 }
@@ -451,12 +479,12 @@ else {
 
 MidiParser.parse(inputSmf, (midiData) => {
   if (!midiData)  {
-    alert("SMFが無効かもです。");
+    alert(["SMFが無効かもです。", "Invalid SMF."][languageIndex]);
     return;
   }
 
   if (midiData.formatType != 1) {
-    alert("フォーマット1しか対応してません。申し訳ない...");
+    alert(["フォーマット1しか対応してません。申し訳ない...", "Sorry, we only support Format 1."][languageIndex]);
     return;
   }
 
@@ -466,10 +494,25 @@ MidiParser.parse(inputSmf, (midiData) => {
   midiData.tracks.forEach(track => {
     var notes = [];
 
-    track.events.forEach(event => {
+    for (var event of track.events) {
+      var type = event.type;
+      var data = event.data;
+
+      if (type == 255 && event.metaType == 1) {
+        if (data == "MMstart") {
+          notes = [];
+          continue;
+        }
+        
+        if (data == "MMend") break;
+      }
+
       if (notes.length) notes[notes.length - 1].time += event.deltaTime;
-      if (event.type == 9 && event.data[1] > 0) notes.push({time: 0, key: event.data[0]});
-    });
+      if (type == 9 && data[1] > 0) {
+        notes.push({time: 0, key: data[0]});
+        continue;
+      }    
+    }
 
     if (notes.length) notes[notes.length - 1].time = timeUnit;
     noteTracks.push(notes);
@@ -477,17 +520,25 @@ MidiParser.parse(inputSmf, (midiData) => {
 
   var selectedTrack = noteTracks[selectTrack.selectedIndex];  
   if (selectedTrack[0] == null || !selectedTrack[0].hasOwnProperty("key")) {
-    alert("そのトラックにはなんもありません。");
-    return;    
+    alert(["そのトラックにはなんもありません。", "That track is empty."][languageIndex]);
+    return;
   }
 
   var baseKey = selectedTrack[0].key;
 
-  selectTableInput.selectedIndex = 0;
+  selectTableInput.selectedIndex = languageIndex;
   inputTimeUnit.value = timeUnit;
 
+  funStopPlay();
+
+  [2, 3].forEach(i => {
+    for (var j = 1; j <= tableWiringLength; j ++) {
+      tableInput.rows[i].cells[j].textContent = "";
+    }
+  });
+
   selectedTrack.forEach((event, i) => {
-    if (i + 1 >= tableWiringLength) return;
+    if (i >= tableWiringLength) return;
 
     tableInput.rows[2].cells[i + 1].textContent = event.time;
     tableInput.rows[4].cells[i + 1].textContent = event.key - baseKey;
@@ -639,7 +690,7 @@ function funTimeUnit() {
 function funNote(cellIndex) {
   var beat = inputTableBeat.value;
 
-  if (selectTableInput.selectedIndex == 0) {
+  if (selectTableInput.selectedIndex - languageIndex == 0) {
     var cellIndex = isNum(cellIndex) ? cellIndex : this.cellIndex;
     var timeUnit = parseInt(inputTimeUnit.value);
     var targetTime = tableInput.rows[2].cells[cellIndex].textContent;
@@ -677,7 +728,7 @@ var audioContext = new (window.AudioContext || window.webkitAudioContext)();
 var instruments = ["sine", "triangle", "square", "sawtooth"];
 var soundData = [];
 
-for (var i = 0; i < selectInstrument.options.length - 4; i ++) {
+for (var i = 0; i < selectInstrument.options.length / 2 - 4; i ++) {
   (function(i) {
     var xml = new XMLHttpRequest();
     xml.responseType = "arraybuffer";
@@ -694,11 +745,11 @@ for (var i = 0; i < selectInstrument.options.length - 4; i ++) {
 }
 
 function funPlaySound(column) {
-  if (selectInstrument.selectedIndex <= 3) {
+  if (selectInstrument.selectedIndex <= 7) {
     var oscillator = audioContext.createOscillator();
     var gainNode = audioContext.createGain();
 
-    oscillator.type = instruments[selectInstrument.selectedIndex];
+    oscillator.type = instruments[(selectInstrument.selectedIndex - languageIndex) / 2];
     oscillator.frequency.setValueAtTime(440 * (2 ** ((18 - selectScale.selectedIndex + parseFloat(tableInput.rows[4].cells[column].textContent)) / 12)), audioContext.currentTime);
     oscillator.connect(gainNode);      
 
@@ -712,7 +763,7 @@ function funPlaySound(column) {
     var bufferSource = audioContext.createBufferSource();
     var gainNode = audioContext.createGain();
 
-    bufferSource.buffer = soundData[selectInstrument.selectedIndex - 4];
+    bufferSource.buffer = soundData[(selectInstrument.selectedIndex - languageIndex) / 2 - 4];
     bufferSource.playbackRate.value = 2 ** ((18 - selectScale.selectedIndex + parseInt(tableInput.rows[4].cells[column].textContent)) / 12);
     bufferSource.connect(gainNode);
 
@@ -766,7 +817,7 @@ function funStopPlay() {
 function funLoading(selectedIndex) {
   divLoadingSpeedCycle.style.display = "none";
 
-  switch (selectedIndex) {
+  switch ((selectedIndex - languageIndex) / 2) {
     case 0:
     case 1:
       divLoadingSpeedAverage.style.display = "none";
@@ -785,14 +836,14 @@ function funLoading(selectedIndex) {
     case 3:
       divLoadingSpeedAverage.style.display = "block";
       selectLoadingSpeedInput.style.display = "inline-block";
-      selectLoadingSpeedInput.selectedIndex = 1;
+      selectLoadingSpeedInput.selectedIndex = 2 + languageIndex;
 
       tableWiring.rows[4].style.display = "table-row";
   }
 }
 
 function funLoadingSpeedInput(selectedIndex) {
-  switch (selectedIndex) {
+  switch ((selectedIndex - languageIndex) / 2) {
     case 0:
       divLoadingSpeedAverage.style.display = "none";
       divLoadingSpeedCycle.style.display = "none";
@@ -814,22 +865,22 @@ function funLanding(selectedIndex) {
   var correctionPattern = [];
 
   switch (selectedIndex) {
-    case 1:
+    case 2:
       firstCorrection = 8;
       correctionPattern = [11, 11, 10];
       break;
     
-    case 2:
+    case 3:
       firstCorrection = 11;
       correctionPattern = [11, 10, 11];
       break;
 
-    case 3:
+    case 4:
       firstCorrection = 11;
       correctionPattern = [10, 11, 11];
       break;
 
-    case 4:
+    case 5:
       firstCorrection = 10;
       correctionPattern = [11, 11, 10];
   }
@@ -845,7 +896,7 @@ function funLanding(selectedIndex) {
 }
 
 function funLoadingSpeedAverage(loadingSpeed) {
-  if (selectLoading.selectedIndex == 3) {
+  if (selectLoading.selectedIndex - languageIndex == 6) {
     if (loadingSpeed != "") {
       for (var i = 2; i <= tableWiringLength; i ++) {
         tableWiring.rows[4].cells[i].textContent = parseFloat(loadingSpeed).toFixed(3);
@@ -860,20 +911,18 @@ function funLoadingSpeedAverage(loadingSpeed) {
 }
 
 function funLoadingSpeedCycle(loadingSpeeds) {
-  if (selectLoading.selectedIndex == 3) {
-    if (loadingSpeeds == "") {
-      for (var i = 2; i <= tableWiringLength; i ++) {
-        tableWiring.rows[4].cells[i].textContent = "";
-      }
-
-      return;
-    }
-
-    var loadingSpeeds = loadingSpeeds.split(",").map(speed => parseFloat(speed));
-
+  if (loadingSpeeds == "") {
     for (var i = 2; i <= tableWiringLength; i ++) {
-      tableWiring.rows[4].cells[i].textContent = (loadingSpeeds[(i - 2) % loadingSpeeds.length]).toFixed(3);
+      tableWiring.rows[4].cells[i].textContent = "";
     }
+  
+    return;
+  }
+  
+  var loadingSpeeds = loadingSpeeds.split(",").map(speed => parseFloat(speed));
+  
+  for (var i = 2; i <= tableWiringLength; i ++) {
+    tableWiring.rows[4].cells[i].textContent = (loadingSpeeds[(i - 2) % loadingSpeeds.length]).toFixed(3);
   }
 }
 
@@ -946,9 +995,10 @@ function funWiringSort() {
     var delay = tableWiring.rows[2].cells[i].textContent;
     var xDelay = tableWiring.rows[3].cells[i].textContent;
 
-    var xScrollDelay = selectLoading.selectedIndex == 3 ? tableWiring.rows[4].cells[i].textContent : 0;
+    var xScrollDelay = selectLoading.selectedIndex - languageIndex == 6 ? tableWiring.rows[4].cells[i].textContent : 0;
     var yScrollDelay = 0;
-    switch (selectLoading.selectedIndex) {
+    
+    switch ((selectLoading.selectedIndex - languageIndex) / 2) {
       case 1:
         yScrollDelay = -4;
         break;
@@ -957,7 +1007,7 @@ function funWiringSort() {
         yScrollDelay = paeseFloat(inputLoadingSpeedAverage.value);
     }
 
-    var height = selectLoading.selectedIndex == 1 ? 0 : parseInt(tableWiring.rows[5].cells[i].textContent);
+    var height = selectLoading.selectedIndex - languageIndex == 2 ? 0 : parseInt(tableWiring.rows[5].cells[i].textContent);
 
     var baseDelay = inputBaseDelay.value;
     var baseHeight = parseInt(inputBaseHeight.value) - parseInt(tableWiring.rows[5].cells[1].textContent);
@@ -1103,7 +1153,7 @@ function funTarget() {
 }
 
 function funSort() {
-  switch (selectSort.selectedIndex) {
+  switch ((selectSort.selectedIndex - languageIndex) / 2) {
     case 0:
       resultsSame.sort((m, n) => m.down - n.down);
       resultsNear.sort((m, n) => m.down - n.down);
