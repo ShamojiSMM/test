@@ -21,6 +21,11 @@ p {
   color: #656565;
 }
 
+.en {
+  display: none;
+  line-height: 1.5;
+}
+
 hr {
   margin-top: 1rem;
 }
@@ -35,6 +40,10 @@ h3  {
   margin-top: 0px;
   margin-right: 0.8rem;
   display: inline-block;  
+}
+
+a {
+  text-decoration: none;
 }
 
 .contents {
@@ -52,6 +61,10 @@ input[type="number"] {
   height: 1.7rem;
   width: 3.6rem;
   margin-right: 0.8rem;
+  margin-bottom: 0.4rem;
+}
+
+input[type="text"] {
   margin-bottom: 0.4rem;
 }
 
@@ -81,6 +94,7 @@ select {
 button:not(td button) {
   height: 2rem;
   margin-bottom: 0.4rem;
+  margin-right: 0.8rem;
 }
 
 .result {
@@ -89,10 +103,10 @@ button:not(td button) {
 
 #tableBeats {
   border-collapse: collapse;
-  width: 16rem;
+  width: 24rem;
 }
 
-#tableBeats * {
+#tableBeats *:not(span) {
   border: 1px solid #9a9a9a;
 }
 
@@ -119,7 +133,7 @@ button:not(td button) {
   margin-right: 0rem;
 }
 
-#imageloop {
+#divSpecial, #imageloop {
   display: none;
 }
 
@@ -140,14 +154,14 @@ button:not(td button) {
   table-layout: fixed;
 }
 
-.tableWirings * {
+.tableWirings *:not(span) {
   border: 1px solid #8c8c8c;
   overflow: hidden;
 }
 
 .th {
   background-color: #dcdcdc;
-  width: 7rem;
+  width: 7.5rem;
 }
 
 .index {
@@ -252,7 +266,7 @@ ul {
   border-collapse: collapse;
 }
 
-.tableSpeeds * {
+.tableSpeeds *:not(span) {
   border: 1px solid #000000;
 }
 
@@ -268,4 +282,8 @@ ul {
   margin-left: 0.8rem;
   margin-bottom: 0.4rem;
   display: block;
+}
+
+.vertical {
+  writing-mode: vertical-lr;
 }
